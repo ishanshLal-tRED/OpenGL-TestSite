@@ -3,13 +3,14 @@
 #include "Core.h"
 
 #include "Window.h"
-#include "LayerStack.h"
 #include "../Events/Event.h"
 #include "../Events/ApplicationEvent.h"
 
 #include "Timestep.h"
 
+#include "GLCore/Core/Layer.h"
 #include "../ImGui/ImGuiLayer.h"
+#include "GLCore/Core/TestsLayerManager.h"
 
 namespace GLCore {
 
@@ -24,8 +25,10 @@ namespace GLCore {
 
 		void OnEvent(Event& e);
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+		template<class Typ>
+		void PushLayer () { m_TestsManager.PushTest<Typ> (); }
+		void ActivateLayer   (uint16_t posn) { m_TestsManager.ActivateTest   (posn); }
+		void DeActivateLayer (uint16_t posn) { m_TestsManager.DeActivateTest (posn); }
 
 		inline Window& GetWindow() { return *m_Window; }
 
@@ -34,12 +37,14 @@ namespace GLCore {
 		bool OnWindowClose(WindowCloseEvent& e);
 	private:
 		std::unique_ptr<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
+
+		// Layer's
+		ImGuiLayer m_ImGuiLayer;
+		TestsLayerManager m_TestsManager;
+
 		bool m_Running = true;
-		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
 	private:
 		static Application* s_Instance;
 	};
-
 }

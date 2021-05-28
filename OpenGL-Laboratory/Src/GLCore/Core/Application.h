@@ -9,11 +9,10 @@
 #include "Timestep.h"
 
 #include "GLCore/Core/Layer.h"
-#include "../ImGui/ImGuiLayer.h"
 #include "GLCore/Core/TestsLayerManager.h"
+#include "../ImGui/ImGuiLayer.h"
 
 namespace GLCore {
-
 	class Application
 	{
 	public:
@@ -26,7 +25,7 @@ namespace GLCore {
 		void OnEvent(Event& e);
 
 		template<class Typ>
-		void PushLayer () { m_TestsManager.PushTest<Typ> (); }
+		void PushLayer () { m_TestsManager.PushTest<Typ> (); }		
 		void ActivateLayer   (uint16_t posn) { m_TestsManager.ActivateTest   (posn); }
 		void DeActivateLayer (uint16_t posn) { m_TestsManager.DeActivateTest (posn); }
 

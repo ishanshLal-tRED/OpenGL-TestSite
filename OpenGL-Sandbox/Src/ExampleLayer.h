@@ -3,7 +3,7 @@
 #include <GLCore.h>
 #include <GLCoreUtils.h>
 
-class ExampleLayer : public GLCore::Layer
+class ExampleLayer : public GLCore::TestBase
 {
 public:
 	ExampleLayer();

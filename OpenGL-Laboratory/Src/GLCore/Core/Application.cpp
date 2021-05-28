@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "Application.h"
-
 #include "Log.h"
-
 #include "Input.h"
 
 #include <glfw/glfw3.h>
@@ -40,7 +38,7 @@ namespace GLCore {
 		m_TestsManager.ProcessEvent (e);
 	}
 
-	void Application::Run()
+	void Application::Run ()
 	{
 		while (m_Running)
 		{

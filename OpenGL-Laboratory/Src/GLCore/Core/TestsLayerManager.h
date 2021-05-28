@@ -1,7 +1,9 @@
-﻿#include "GLCore/Core/Test.h"
+﻿#pragma once
 
 namespace GLCore
 {
+	class TestBase;
+
 	class TestsLayerManager
 	{
 	public:
@@ -11,7 +13,7 @@ namespace GLCore
 		template<class Typ>
 		void PushTest ()
 		{
-			m_AllTests.push_back (static_cast<Layer*>(new Typ ()));
+			m_AllTests.push_back (static_cast<TestBase *>(new Typ ()));
 		}
 
 		void UpdateActiveLayers (Timestep deltatime);
@@ -22,7 +24,8 @@ namespace GLCore
 		void ActivateTest (uint16_t posn);
 		void DeActivateTest (uint16_t posn);
 	private:
-		std::array<Layer*,2> m_ActiveTests = { nullptr, nullptr };
-		std::vector<Layer*> m_AllTests;
+		uint32_t m_DockspaceID;
+		std::array  <TestBase*,2> m_ActiveTests = { nullptr, nullptr };
+		std::vector <TestBase*>   m_AllTests;
 	};
 }

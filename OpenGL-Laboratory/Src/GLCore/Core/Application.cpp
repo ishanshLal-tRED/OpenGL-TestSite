@@ -19,7 +19,7 @@ namespace GLCore {
 			Log::Init();
 		}
 
-		GLCORE_ASSERT(!s_Instance, "Application already exists!");
+		LOG_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
 		m_Window = std::unique_ptr<Window>(Window::Create({ name, width, height }));

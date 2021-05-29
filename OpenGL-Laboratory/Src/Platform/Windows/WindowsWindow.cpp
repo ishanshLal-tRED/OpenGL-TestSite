@@ -41,7 +41,7 @@ namespace GLCore {
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
-			GLCORE_ASSERT(success, "Could not intialize GLFW!");
+			LOG_ASSERT (success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
@@ -50,7 +50,7 @@ namespace GLCore {
 
 		glfwMakeContextCurrent(m_Window);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		GLCORE_ASSERT(status, "Failed to initialize Glad!");
+		LOG_ASSERT (status, "Failed to initialize Glad!");
 
 		LOG_INFO("OpenGL Info:");
 		LOG_INFO("  Vendor: {0}", glGetString(GL_VENDOR));

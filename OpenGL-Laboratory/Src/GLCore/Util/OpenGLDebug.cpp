@@ -19,7 +19,7 @@ namespace GLCore::Utils {
 			{
 				LOG_ERROR("[OpenGL Debug HIGH] {0}", message);
 				if (s_DebugLogLevel == DebugLogLevel::HighAssert)
-					GLCORE_ASSERT(false, "GL_DEBUG_SEVERITY_HIGH");
+					LOG_ASSERT(false, "GL_DEBUG_SEVERITY_HIGH");
 			}
 			break;
 		case GL_DEBUG_SEVERITY_MEDIUM:

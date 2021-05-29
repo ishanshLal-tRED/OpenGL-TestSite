@@ -4,6 +4,7 @@
 
 #include "GLCore/Core/Application.h"
 #include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
 
 namespace GLCore
 {
@@ -25,14 +26,15 @@ namespace GLCore
 	}
 	void TestsLayerManager::UpdateActiveLayers (Timestep deltatime)
 	{
-		for (Layer *test : m_ActiveTests) 	{
+		for (TestBase *test : m_ActiveTests) 	{
 			if (test)
 			{
 				////
 				// Here Will be code for frame buffer
 				////
-	
+				test->BindFramebuffer ();
 				test->OnUpdate (deltatime);
+				test->UnBindFramebuffer ();
 			} else break;
 		}
 	}
@@ -102,7 +104,7 @@ namespace GLCore
 						if (test) {
 							ImGui::PushID (i);
 							ImGui::Bullet ();
-							test->OnImGuiMenuOptions ();
+							test->ImGuiMenuOptions ();
 							ImGui::PopID ();
 						} else break;
 					}
@@ -118,14 +120,25 @@ namespace GLCore
 	}
 	void TestsLayerManager::ImGuiRenderAll ()
 	{
-		for (Layer *test : m_ActiveTests) {
+		uint16_t i = 0;
+		for (TestBase *test : m_ActiveTests) {
 			if (test)
 			{
+				
 				////
 				// Here Will be code for framebuffer-out -> view-port_Window, new-ImGuiWindow(a persistant one that will force your viewport-window to-be attached to itself), pop-on-close-buttonpress etc.
 				////
+				ImGui::PushID (i);
+				ImGui::Begin ("Window");
+				
+				ImGui::SetNextWindowDockID (ImGui::GetWindowDockID (), ImGuiCond_Always);
+				ImGui::Begin ("ViewPort", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNavFocus);
+				ImGui::Image (reinterpret_cast<void *>(test->GetColorAttachmentID ()), ImGui::GetContentRegionAvail (), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				ImGui::End ();
 
 				test->OnImGuiRender ();
+				ImGui::End ();
+				ImGui::PopID ();
 			}else break;
 		}
 	}

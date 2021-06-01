@@ -59,7 +59,7 @@ namespace GLCore::Utils {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(GLCORE_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(GLCORE_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
+		dispatcher.Dispatch<LayerViewportResizeEvent>(GLCORE_BIND_EVENT_FN(OrthographicCameraController::OnViewportResized));
 	}
 
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent &e)
@@ -70,7 +70,7 @@ namespace GLCore::Utils {
 		return false;
 	}
 
-	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent &e)
+	bool OrthographicCameraController::OnViewportResized(LayerViewportResizeEvent &e)
 	{
 		m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
 		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);

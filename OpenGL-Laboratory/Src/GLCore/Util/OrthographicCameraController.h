@@ -3,7 +3,7 @@
 #include "OrthographicCamera.h"
 #include "GLCore/Core/Timestep.h"
 
-#include "GLCore/Events/ApplicationEvent.h"
+#include "GLCore/Events/LayerEvent.h"
 #include "GLCore/Events/MouseEvent.h"
 
 namespace GLCore::Utils {
@@ -23,7 +23,7 @@ namespace GLCore::Utils {
 		void SetZoomLevel(float level) { m_ZoomLevel = level; }
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent &e);
-		bool OnWindowResized(WindowResizeEvent &e);
+		bool OnViewportResized(LayerViewportResizeEvent &e);
 	private:
 		float m_AspectRatio;
 		float m_ZoomLevel = 1.0f;

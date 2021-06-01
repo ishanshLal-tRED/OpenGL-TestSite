@@ -28,18 +28,23 @@ namespace GLCore
 		{
 			return m_Flags & flags;
 		}
+		glm::vec2 ViewportSize ();
 	private:
 		void FlagSetter (Flags, bool);
 		void FilteredEvent (Event &event);
+		void ViewportSize (float x, float y);
 		friend class TestsLayerManager;
+	private:
+		static glm::vec2 s_MainViewportPosn;
 	private:
 		//////
 		// Frame-buffer and etc.
 		/////
 		int m_Flags;
-		Utils::Framebuffer m_Framebuffer;
 		glm::vec2 m_ViewPortSize;
+		Utils::Framebuffer m_Framebuffer;
 
+		glm::vec2 m_ViewportPosnRelativeToMain;
 		std::string m_TestDiscription;
 	};
 }

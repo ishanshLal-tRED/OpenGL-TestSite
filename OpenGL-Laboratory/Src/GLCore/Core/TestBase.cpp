@@ -7,9 +7,11 @@
 namespace GLCore
 {
 	TestBase::TestBase (const std::string &name, const std::string &discription)
-		: Layer (name), m_TestDiscription (discription), m_Framebuffer (Utils::FramebufferSpecification{ 600, 600, { Utils::FramebufferTextureFormat::RGBA8, Utils::FramebufferTextureFormat::Depth } })
-	{	}
+		: Layer (name), m_TestDiscription (discription), m_ViewPortSize(1, 1), m_Framebuffer (Utils::FramebufferSpecification{ (uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y, { Utils::FramebufferTextureFormat::RGBA8, Utils::FramebufferTextureFormat::Depth } })
+	{}
 
+	glm::vec2 TestBase::s_MainViewportPosn = glm::vec2(0, 0);
+	
 	void TestBase::FlagSetter (Flags flag, bool val)
 	{
 		if (val == (bool)(m_Flags & flag))
@@ -34,31 +36,54 @@ namespace GLCore
 
 	void TestBase::FilteredEvent (Event &event)
 	{
+		bool event_dispatched = false;
 		EventDispatcher dispatcher (event);
 		// Input
-		dispatcher.CategoryDispatch<EventCategory::EventCategoryMouseButton> (
+		event_dispatched |= dispatcher.CategoryDispatch<EventCategory::EventCategoryMouseButton> (
 			[&](Event &e) {
 				if (m_Flags & Flags::Viewport_Focused)
 					OnEvent (e);
 				return e.Handled;
 			});
-		dispatcher.CategoryDispatch<EventCategory::EventCategoryKeyboard> (
+		event_dispatched |= dispatcher.CategoryDispatch<EventCategory::EventCategoryKeyboard> (
 			[&](Event &e) {
 				if (m_Flags & Flags::Viewport_Focused)
 					OnEvent (e);
 				return e.Handled;
 			});
-		dispatcher.Dispatch<MouseScrolledEvent> (
+		event_dispatched |= dispatcher.Dispatch<MouseScrolledEvent> (
 			[&](MouseScrolledEvent &e) {
 				if (m_Flags & Flags::Viewport_Focused)
 					OnEvent (e);
 				return e.Handled;
 			});
-		dispatcher.Dispatch<MouseMovedEvent> (
+		event_dispatched |= dispatcher.Dispatch<MouseMovedEvent> (
 			[&](MouseMovedEvent &e) {
-				if (m_Flags & Flags::Viewport_Hovered)
-					OnEvent (e);
-				return e.Handled;
+				if (m_Flags & Flags::Viewport_Hovered) {
+					MouseMovedEvent event (e.GetX () - m_ViewportPosnRelativeToMain.x, e.GetY () - m_ViewportPosnRelativeToMain.y);
+					OnEvent (event);
+					return event.Handled;
+				}
+				return false;
 			});
+
+		// Other Events passed raw
+		if (!event_dispatched)
+		{
+			OnEvent (event);
+		}
+	}
+
+	void TestBase::ViewportSize (float x, float y)
+	{
+		if (m_ViewPortSize.x != x || m_ViewPortSize.y != y)
+		{
+			// Viewport size changed
+			m_Framebuffer.Resize ((uint32_t)x, (uint32_t)y);
+			
+			LayerViewportResizeEvent event (x, y);
+			OnEvent (event);
+			m_ViewPortSize.x = x, m_ViewPortSize.y = y;
+		}
 	}
 }

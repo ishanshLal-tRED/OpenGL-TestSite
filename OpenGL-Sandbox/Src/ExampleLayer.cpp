@@ -69,6 +69,16 @@ void ExampleLayer::OnEvent(Event& event)
 			m_SquareColor = m_SquareBaseColor;
 			return false;
 		});
+	dispatcher.Dispatch<MouseMovedEvent> (
+		[&](MouseMovedEvent &e) {
+			LOG_TRACE ("Mouse posn [{0}, {1}]", e.GetX (), e.GetY ());
+			return true;
+		});
+	dispatcher.Dispatch<LayerCloseEvent> (
+		[&](LayerCloseEvent &e) {
+			LOG_TRACE ("Layer Closed");
+			return true;
+		});
 	dispatcher.Dispatch<LayerViewportFocusEvent> (
 		[&](LayerViewportFocusEvent &e) {
 			LOG_TRACE ("ViewPort Focused");

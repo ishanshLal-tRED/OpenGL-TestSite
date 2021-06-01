@@ -128,7 +128,13 @@ namespace GLCore
 	}
 	void TestsLayerManager::ImGuiRenderAll ()
 	{
+		int8_t closeTestID = -1;
 		uint16_t i = 0;
+		{
+			ImVec2 mainViewportPosn = ImGui::GetMainViewport ()->Pos;
+			TestBase::s_MainViewportPosn.x = mainViewportPosn.x;
+			TestBase::s_MainViewportPosn.y = mainViewportPosn.y;
+		}
 		for (TestBase *test : m_ActiveTests) {
 			if (test)
 			{
@@ -138,48 +144,63 @@ namespace GLCore
 				////
 				ImGui::PushID (i);
 				ImGui::SetNextWindowDockID (m_DockspaceID);
-				ImGui::Begin (test->GetName ().c_str ());
-				// ImGuiID leftID, rightID;
+				bool closeTest = true;
+				if (closeTest) {
+					ImGui::Begin (test->GetName ().c_str (), &closeTest, ImGuiWindowFlags_NoCollapse);
+					if (!closeTest) {
+						LayerCloseEvent event;
+						test->OnEvent (event);
+						closeTestID = i;
+					}
+					// ImGuiID leftID, rightID;
 
-				//static ImGuiDockNode *WindowDockNode = nullptr;
-				//if (WindowDockNode != ImGui::GetWindowDockNode ())
-				//{
-				//	WindowDockNode = ImGui::GetWindowDockNode ();
-				//	ImGui::DockNodeTreeSplit (ImGui::GetCurrentContext (), WindowDockNode, ImGuiAxis_X, 1, 0.7f, WindowDockNode);
-				//}
-				
-				// Create a DockSpace node where any window can be docked
-				ImGuiID dockspace_id = ImGui::GetID ("MyDockSpace");
-				ImGui::DockSpace (dockspace_id);
-				
-				// ImGuiID leftSplitID, rightSplitID;
-				// ImGui::DockBuilderAddNode ();
-				// ImGui::DockBuilderSplitNode (ImGui::GetWindowDockNode ()->ID, ImGuiDir_Left, 0.7f, &leftSplitID, &rightSplitID);
-				// ImGui::DockBuilderFinish (ImGui::GetWindowDockNode ()->ID);
+					//static ImGuiDockNode *WindowDockNode = nullptr;
+					//if (WindowDockNode != ImGui::GetWindowDockNode ())
+					//{
+					//	WindowDockNode = ImGui::GetWindowDockNode ();
+					//	ImGui::DockNodeTreeSplit (ImGui::GetCurrentContext (), WindowDockNode, ImGuiAxis_X, 1, 0.7f, WindowDockNode);
+					//}
 
-				//ImGui::SetNextWindowDockID (leftSplitID, ImGuiCond_Always);
-				ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
-				
-				ImGui::PushStyleVar (ImGuiStyleVar_WindowPadding, ImVec2 (0, 0));
-				
-				ImGui::Begin ("ViewPort", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
-				{
-					ImVec2 ContentRegionAvail = ImGui::GetContentRegionAvail ();
-					ImGui::Image (reinterpret_cast<void *>(test->m_Framebuffer.GetColorAttachmentRendererID ()), ContentRegionAvail, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-					test->FlagSetter (TestBase::Viewport_Focused, ImGui::IsWindowFocused ());
-					test->FlagSetter (TestBase::Viewport_Hovered, ImGui::IsWindowHovered ());
-					test->m_ViewPortSize.x = ContentRegionAvail.x;
-					test->m_ViewPortSize.y = ContentRegionAvail.y;
+					// Create a DockSpace node where any window can be docked
+					ImGuiID dockspace_id = ImGui::GetID ("MyDockSpace");
+					ImGui::DockSpace (dockspace_id);
+
+					// ImGuiID leftSplitID, rightSplitID;
+					// ImGui::DockBuilderAddNode ();
+					// ImGui::DockBuilderSplitNode (ImGui::GetWindowDockNode ()->ID, ImGuiDir_Left, 0.7f, &leftSplitID, &rightSplitID);
+					// ImGui::DockBuilderFinish (ImGui::GetWindowDockNode ()->ID);
+
+					//ImGui::SetNextWindowDockID (leftSplitID, ImGuiCond_Always);
+
+					ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
+					ImGui::PushStyleVar (ImGuiStyleVar_WindowPadding, ImVec2 (0, 0));
+					ImGui::Begin ("ViewPort", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+					{
+						ImVec2 ContentRegionAvail = ImGui::GetContentRegionAvail ();
+						ImVec2 ContentDrawStartPos = ImGui::GetCursorScreenPos ();
+						ImGui::Image (reinterpret_cast<void *>(test->m_Framebuffer.GetColorAttachmentRendererID ()), ContentRegionAvail, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+						test->FlagSetter (TestBase::Viewport_Focused, ImGui::IsWindowFocused ());
+						test->FlagSetter (TestBase::Viewport_Hovered, ImGui::IsWindowHovered ());
+
+						test->ViewportSize (ContentRegionAvail.x, ContentRegionAvail.y);
+						{
+							test->m_ViewportPosnRelativeToMain.x = ContentDrawStartPos.x - TestBase::s_MainViewportPosn.x;
+							test->m_ViewportPosnRelativeToMain.y = ContentDrawStartPos.y - TestBase::s_MainViewportPosn.y;
+						}
+					}
+					ImGui::End ();
+					ImGui::PopStyleVar ();
+
+					ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
+					test->OnImGuiRender ();
+					ImGui::End ();
 				}
-				ImGui::End ();
-				
-				ImGui::PopStyleVar ();				
-
-				ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
-				test->OnImGuiRender ();
-				ImGui::End ();
 				ImGui::PopID ();
 			}else break;
+		}
+		if (closeTestID > -1)
+		{
+			DeActivateTest (closeTestID);
 		}
 	}
 	void TestsLayerManager::ProcessEvent (Event &event)
@@ -193,15 +214,17 @@ namespace GLCore
 	
 	void TestsLayerManager::ActivateTest (uint16_t posn)
 	{
-		if (m_ActiveTests[1] == nullptr) {
-			if (m_ActiveTests[0] == nullptr) {
-				m_ActiveTests[0] = m_AllTests[posn];
-				m_ActiveTests[0]->OnAttach ();
-				return;
+		constexpr uint16_t Active_Tests_stack_size = sizeof (m_ActiveTests)/sizeof (m_ActiveTests[0]);
+		for (uint16_t i = 0; i < Active_Tests_stack_size; i--)
+		{
+			if (m_ActiveTests[i] != nullptr) {
+				continue;
 			}
-			m_ActiveTests[1] = m_AllTests[posn];
-			m_ActiveTests[1]->OnAttach ();
+			m_ActiveTests[i] = m_AllTests[posn];
+
+			m_ActiveTests[i]->OnAttach ();
 			return;
+			
 		}
 		LOG_WARN ("!! No more Active tests allowed !!");
 	}
@@ -210,12 +233,16 @@ namespace GLCore
 		constexpr uint16_t Active_Tests_stack_size = sizeof (m_ActiveTests)/sizeof (m_ActiveTests[0]);
 		if (posn < Active_Tests_stack_size) {
 			if (m_ActiveTests[posn] != nullptr) {
+				std::cout << " >" << std::endl;
 				for (uint16_t i = posn; i < (Active_Tests_stack_size - 1); i++) {
 					m_ActiveTests[i] = m_ActiveTests[i + 1];
 				}
 				m_ActiveTests[Active_Tests_stack_size - 1] = nullptr;
+				return;
+			} else {
+				LOG_WARN ("!! nullptr found at: posn {0}", posn);
+				return;
 			}
-			LOG_WARN ("!! nullptr found at: posn {0}", posn);
 		}
 		LOG_WARN ("!! Out of bounds: posn {0}, Active_Tests_stack_size {1} !!", posn, Active_Tests_stack_size);
 	}

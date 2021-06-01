@@ -14,7 +14,7 @@ namespace GLCore::Utils {
 		OrthographicCameraController(float aspectRatio, bool rotation = false);
 
 		void OnUpdate(Timestep ts);
-		void OnEvent(Event& e);
+		void OnEvent(Event &e);
 
 		OrthographicCamera& GetCamera() { return m_Camera; }
 		const OrthographicCamera& GetCamera() const { return m_Camera; }
@@ -22,8 +22,8 @@ namespace GLCore::Utils {
 		float GetZoomLevel() const { return m_ZoomLevel; }
 		void SetZoomLevel(float level) { m_ZoomLevel = level; }
 	private:
-		bool OnMouseScrolled(MouseScrolledEvent& e);
-		bool OnWindowResized(WindowResizeEvent& e);
+		bool OnMouseScrolled(MouseScrolledEvent &e);
+		bool OnWindowResized(WindowResizeEvent &e);
 	private:
 		float m_AspectRatio;
 		float m_ZoomLevel = 1.0f;

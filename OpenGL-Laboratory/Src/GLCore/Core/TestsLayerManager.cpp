@@ -32,9 +32,9 @@ namespace GLCore
 				////
 				// Here Will be code for frame buffer
 				////
-				test->BindFramebuffer ();
+				test->m_Framebuffer.Bind ();
 				test->OnUpdate (deltatime);
-				test->UnBindFramebuffer ();
+				test->m_Framebuffer.Unbind ();
 			} else break;
 		}
 	}
@@ -43,6 +43,7 @@ namespace GLCore
 		{// DockSpace
 
 			static bool dockspaceOpen = true;
+			static bool showImGuiDemoWindow = false;
 			static constexpr bool optFullscreenPersistant = true;
 			bool optFullscreen = optFullscreenPersistant;
 
@@ -94,6 +95,8 @@ namespace GLCore
 			if (ImGui::BeginMenuBar ()) {
 				if (ImGui::BeginMenu ("Main")) {
 
+					if (ImGui::MenuItem ("Show Demo Window")) showImGuiDemoWindow = true;
+					ImGui::Separator ();
 					if (ImGui::MenuItem ("Exit")) Application::Get ().ApplicationClose ();
 
 					ImGui::EndMenu ();
@@ -110,6 +113,11 @@ namespace GLCore
 					}
 				}
 				ImGui::EndMenuBar ();
+			}
+
+			if (showImGuiDemoWindow)
+			{
+				ImGui::ShowDemoWindow (&showImGuiDemoWindow);
 			}
 
 			// Here goes Stuff that will be put inside DockSpace
@@ -129,13 +137,45 @@ namespace GLCore
 				// Here Will be code for framebuffer-out -> view-port_Window, new-ImGuiWindow(a persistant one that will force your viewport-window to-be attached to itself), pop-on-close-buttonpress etc.
 				////
 				ImGui::PushID (i);
-				ImGui::Begin ("Window");
-				
-				ImGui::SetNextWindowDockID (ImGui::GetWindowDockID (), ImGuiCond_Always);
-				ImGui::Begin ("ViewPort", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNavFocus);
-				ImGui::Image (reinterpret_cast<void *>(test->GetColorAttachmentID ()), ImGui::GetContentRegionAvail (), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-				ImGui::End ();
+				ImGui::SetNextWindowDockID (m_DockspaceID);
+				ImGui::Begin (test->GetName ().c_str ());
+				// ImGuiID leftID, rightID;
 
+				//static ImGuiDockNode *WindowDockNode = nullptr;
+				//if (WindowDockNode != ImGui::GetWindowDockNode ())
+				//{
+				//	WindowDockNode = ImGui::GetWindowDockNode ();
+				//	ImGui::DockNodeTreeSplit (ImGui::GetCurrentContext (), WindowDockNode, ImGuiAxis_X, 1, 0.7f, WindowDockNode);
+				//}
+				
+				// Create a DockSpace node where any window can be docked
+				ImGuiID dockspace_id = ImGui::GetID ("MyDockSpace");
+				ImGui::DockSpace (dockspace_id);
+				
+				// ImGuiID leftSplitID, rightSplitID;
+				// ImGui::DockBuilderAddNode ();
+				// ImGui::DockBuilderSplitNode (ImGui::GetWindowDockNode ()->ID, ImGuiDir_Left, 0.7f, &leftSplitID, &rightSplitID);
+				// ImGui::DockBuilderFinish (ImGui::GetWindowDockNode ()->ID);
+
+				//ImGui::SetNextWindowDockID (leftSplitID, ImGuiCond_Always);
+				ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
+				
+				ImGui::PushStyleVar (ImGuiStyleVar_WindowPadding, ImVec2 (0, 0));
+				
+				ImGui::Begin ("ViewPort", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+				{
+					ImVec2 ContentRegionAvail = ImGui::GetContentRegionAvail ();
+					ImGui::Image (reinterpret_cast<void *>(test->m_Framebuffer.GetColorAttachmentRendererID ()), ContentRegionAvail, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+					test->FlagSetter (TestBase::Viewport_Focused, ImGui::IsWindowFocused ());
+					test->FlagSetter (TestBase::Viewport_Hovered, ImGui::IsWindowHovered ());
+					test->m_ViewPortSize.x = ContentRegionAvail.x;
+					test->m_ViewPortSize.y = ContentRegionAvail.y;
+				}
+				ImGui::End ();
+				
+				ImGui::PopStyleVar ();				
+
+				ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
 				test->OnImGuiRender ();
 				ImGui::End ();
 				ImGui::PopID ();
@@ -144,9 +184,9 @@ namespace GLCore
 	}
 	void TestsLayerManager::ProcessEvent (Event &event)
 	{
-		for (Layer *test : m_ActiveTests) {
+		for (TestBase *test : m_ActiveTests) {
 			if (test && !event.Handled) {
-				test->OnEvent (event);
+				test->FilteredEvent (event);
 			} else break;
 		}
 	}

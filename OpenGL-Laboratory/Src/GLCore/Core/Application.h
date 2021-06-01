@@ -22,10 +22,11 @@ namespace GLCore {
 		void Run();
 		bool ApplicationClose ();
 
-		void OnEvent(Event& e);
+		void OnEvent(Event &e);
 
-		template<class Typ>
-		void PushLayer () { m_TestsManager.PushTest<Typ> (); }		
+		template<class Typ, class... Types>
+		void PushLayer (Types&&... Args) { m_TestsManager.PushTest (new Typ(std::forward<Types> (Args)...)); }
+
 		void ActivateLayer   (uint16_t posn) { m_TestsManager.ActivateTest   (posn); }
 		void DeActivateLayer (uint16_t posn) { m_TestsManager.DeActivateTest (posn); }
 
@@ -33,7 +34,7 @@ namespace GLCore {
 
 		inline static Application& Get() { return *s_Instance; }
 	private:
-		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowClose(WindowCloseEvent &e);
 	private:
 		std::unique_ptr<Window> m_Window;
 

@@ -20,8 +20,8 @@ namespace GLCore {
 		void Begin();
 		void End();
 
-		virtual void ImGuiLayer::OnEvent(Event& event);
-		bool ImGuiLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e);
+		// virtual void ImGuiLayer::OnEvent(Event &event); // No need as Events will be filterd internally
+		// bool ImGuiLayer::OnMouseButtonPressed(MouseButtonPressedEvent &e);
 	private:
 		float m_Time = 0.0f;
 	};

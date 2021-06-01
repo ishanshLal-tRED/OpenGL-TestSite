@@ -4,12 +4,7 @@ using namespace GLCore;
 using namespace GLCore::Utils;
 
 ExampleLayer::ExampleLayer()
-	: m_CameraController(16.0f / 9.0f)
-{
-
-}
-
-ExampleLayer::~ExampleLayer()
+	: TestBase("ExampleLayer", "Square"), m_CameraController(16.0f / 9.0f)
 {
 
 }
@@ -73,6 +68,16 @@ void ExampleLayer::OnEvent(Event& event)
 		{
 			m_SquareColor = m_SquareBaseColor;
 			return false;
+		});
+	dispatcher.Dispatch<LayerViewportFocusEvent> (
+		[&](LayerViewportFocusEvent &e) {
+			LOG_TRACE ("ViewPort Focused");
+			return true;
+		});
+	dispatcher.Dispatch<LayerViewportLostFocusEvent> (
+		[&](LayerViewportLostFocusEvent &e) {
+			LOG_TRACE ("ViewPort lost Focused");
+			return true;
 		});
 }
 

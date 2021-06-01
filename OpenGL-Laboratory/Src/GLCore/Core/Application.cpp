@@ -28,7 +28,7 @@ namespace GLCore {
 		m_ImGuiLayer.OnAttach ();
 	}
 
-	void Application::OnEvent(Event& e)
+	void Application::OnEvent(Event &e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));

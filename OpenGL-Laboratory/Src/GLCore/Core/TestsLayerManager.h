@@ -10,10 +10,9 @@ namespace GLCore
 		TestsLayerManager () = default;
 		~TestsLayerManager ();
 
-		template<class Typ>
-		void PushTest ()
+		void PushTest (TestBase* test)
 		{
-			m_AllTests.push_back (static_cast<TestBase *>(new Typ ()));
+			m_AllTests.emplace_back (test);
 		}
 
 		void UpdateActiveLayers (Timestep deltatime);

@@ -7,7 +7,7 @@ class ExampleLayer : public GLCore::TestBase
 {
 public:
 	ExampleLayer();
-	virtual ~ExampleLayer();
+	virtual ~ExampleLayer() = default;
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;

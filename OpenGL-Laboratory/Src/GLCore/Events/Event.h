@@ -16,17 +16,22 @@ namespace GLCore {
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+
+		// Handled Per-Layer basis through filtering
+		LayerClose,
+		LayerViewportResize, LayerViewportFocus, LayerViewportLostFocus
 	};
 
 	enum EventCategory
 	{
 		None = 0,
 		EventCategoryApplication    = BIT(0),
-		EventCategoryInput          = BIT(1),
+		EventCategoryInput          = BIT(1), // Input Events will be filtered per layer basis
 		EventCategoryKeyboard       = BIT(2),
 		EventCategoryMouse          = BIT(3),
-		EventCategoryMouseButton    = BIT(4)
+		EventCategoryMouseButton    = BIT(4),
+		EventCategoryLayer          = BIT(5)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -54,12 +59,12 @@ namespace GLCore {
 	class EventDispatcher
 	{
 	public:
-		EventDispatcher(Event& event)
+		EventDispatcher(Event &event)
 			: m_Event(event)
 		{
 		}
 		
-		// F will be deduced by the compiler
+		// F will be deduced by the compiler,  F -> bool (*func) (T&)
 		template<typename T, typename F>
 		bool Dispatch(const F& func)
 		{
@@ -70,11 +75,22 @@ namespace GLCore {
 			}
 			return false;
 		}
+		// F will be deduced by the compiler, F -> bool (*func) (Event&)
+		template<EventCategory Flag, typename F>
+		bool CategoryDispatch(const F& func)
+		{
+			if (m_Event.IsInCategory(Flag))
+			{
+				m_Event.Handled = func(m_Event);
+				return true;
+			}
+			return false;
+		}
 	private:
-		Event& m_Event;
+		Event &m_Event;
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const Event& e)
+	inline std::ostream& operator<<(std::ostream& os, const Event &e)
 	{
 		return os << e.ToString();
 	}

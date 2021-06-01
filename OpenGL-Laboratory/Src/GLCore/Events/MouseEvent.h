@@ -21,7 +21,7 @@ namespace GLCore {
 		}
 
 		EVENT_CLASS_TYPE(MouseMoved)
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategory::MOUSE | EventCategory::INPUT)
 	private:
 		float m_MouseX, m_MouseY;
 	};
@@ -43,7 +43,7 @@ namespace GLCore {
 		}
 
 		EVENT_CLASS_TYPE(MouseScrolled)
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategory::MOUSE | EventCategory::INPUT)
 	private:
 		float m_XOffset, m_YOffset;
 	};
@@ -53,7 +53,7 @@ namespace GLCore {
 	public:
 		inline int GetMouseButton() const { return m_Button; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
+		EVENT_CLASS_CATEGORY(EventCategory::MOUSE | EventCategory::INPUT | EventCategory::MOUSE_BUTTON)
 	protected:
 		MouseButtonEvent(int button)
 			: m_Button(button) {}

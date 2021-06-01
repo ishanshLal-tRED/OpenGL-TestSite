@@ -42,11 +42,12 @@ namespace GLCore {
 	{
 		while (m_Running)
 		{
+			// TODO: Handle Minimizing, Handle Framebuffer accordingly
+
 			float time = (float)glfwGetTime();
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			m_ImGuiLayer.OnUpdate (timestep);
 			m_TestsManager.UpdateActiveLayers (timestep);
 
 			m_ImGuiLayer.Begin();

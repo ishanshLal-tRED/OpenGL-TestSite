@@ -6,7 +6,7 @@
 class ExampleLayer : public GLCore::TestBase
 {
 public:
-	ExampleLayer();
+	ExampleLayer(std::string name = "ExampleLayer");
 	virtual ~ExampleLayer() = default;
 
 	virtual void OnAttach() override;

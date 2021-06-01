@@ -3,8 +3,8 @@
 using namespace GLCore;
 using namespace GLCore::Utils;
 
-ExampleLayer::ExampleLayer()
-	: TestBase("ExampleLayer", "Square"), m_CameraController(16.0f / 9.0f)
+ExampleLayer::ExampleLayer(std::string name)
+	: TestBase(name, "Square"), m_CameraController(16.0f / 9.0f)
 {
 
 }

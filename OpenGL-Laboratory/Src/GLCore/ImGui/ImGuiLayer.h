@@ -20,8 +20,7 @@ namespace GLCore {
 		void Begin();
 		void End();
 
-		// virtual void ImGuiLayer::OnEvent(Event &event); // No need as Events will be filterd internally
-		// bool ImGuiLayer::OnMouseButtonPressed(MouseButtonPressedEvent &e);
+		// TODO: Impliment ImGui Theme Changer
 	private:
 		float m_Time = 0.0f;
 	};

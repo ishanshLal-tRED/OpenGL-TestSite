@@ -17,11 +17,14 @@ namespace GLCore
 
 		void UpdateActiveLayers (Timestep deltatime);
 		void ImGuiRender ();
-		void ImGuiRenderAll ();
+		void OnImGuiRenderAll ();
 		void ProcessEvent (Event &event);
 
 		void ActivateTest (uint16_t posn);
 		void DeActivateTest (uint16_t posn);
+	private:
+		void ShowTestMenu ();
+		bool m_ShowTestMenu = false;
 	private:
 		uint32_t m_DockspaceID;
 		std::array  <TestBase*,2> m_ActiveTests = { nullptr, nullptr };

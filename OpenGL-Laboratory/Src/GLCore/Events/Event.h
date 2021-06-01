@@ -26,17 +26,17 @@ namespace GLCore {
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication    = BIT(0),
-		EventCategoryInput          = BIT(1), // Input Events will be filtered per layer basis
-		EventCategoryKeyboard       = BIT(2),
-		EventCategoryMouse          = BIT(3),
-		EventCategoryMouseButton    = BIT(4),
-		EventCategoryLayer          = BIT(5)
+		APPLICATION    = BIT(0),
+		INPUT          = BIT(1), // Input Events will be filtered per layer basis
+		KEYBOARD       = BIT(2),
+		MOUSE          = BIT(3),
+		MOUSE_BUTTON   = BIT(4),
+		LAYER          = BIT(5)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
+							  virtual EventType GetEventType() const override { return GetStaticType(); }\
+							  virtual const char* GetName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
@@ -61,8 +61,7 @@ namespace GLCore {
 	public:
 		EventDispatcher(Event &event)
 			: m_Event(event)
-		{
-		}
+		{}
 		
 		// F will be deduced by the compiler,  F -> bool (*func) (T&)
 		template<typename T, typename F>

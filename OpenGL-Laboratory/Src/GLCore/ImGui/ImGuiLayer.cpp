@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ImGuiLayer.h"
 
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
@@ -77,17 +77,4 @@ namespace GLCore
 			glfwMakeContextCurrent (backup_current_context);
 		}
 	}
-
-	// void ImGuiLayer::OnEvent (Event &event)
-	// {
-	// 	EventDispatcher dispatcher (event);
-	// 	dispatcher.Dispatch<MouseButtonPressedEvent> (GLCORE_BIND_EVENT_FN (ImGuiLayer::OnMouseButtonPressed));
-	// }
-
-	// bool ImGuiLayer::OnMouseButtonPressed (MouseButtonPressedEvent &e)
-	// {
-	// 	ImGuiIO io = ImGui::GetIO ();
-	// 	return io.WantCaptureMouse;
-	// }
-
 }

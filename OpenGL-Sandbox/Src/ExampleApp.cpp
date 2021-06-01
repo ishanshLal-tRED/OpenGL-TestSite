@@ -10,7 +10,8 @@ public:
 		: Application("OpenGL Examples")
 	{
 		PushLayer<ExampleLayer> ();
-		ActivateLayer (0);
+		PushLayer<ExampleLayer> ("Example Layer 2");
+		//ActivateLayer (0);
 	}
 };
 

@@ -39,13 +39,13 @@ namespace GLCore
 		bool event_dispatched = false;
 		EventDispatcher dispatcher (event);
 		// Input
-		event_dispatched |= dispatcher.CategoryDispatch<EventCategory::EventCategoryMouseButton> (
+		event_dispatched |= dispatcher.CategoryDispatch<EventCategory::MOUSE_BUTTON> (
 			[&](Event &e) {
 				if (m_Flags & Flags::Viewport_Focused)
 					OnEvent (e);
 				return e.Handled;
 			});
-		event_dispatched |= dispatcher.CategoryDispatch<EventCategory::EventCategoryKeyboard> (
+		event_dispatched |= dispatcher.CategoryDispatch<EventCategory::KEYBOARD> (
 			[&](Event &e) {
 				if (m_Flags & Flags::Viewport_Focused)
 					OnEvent (e);

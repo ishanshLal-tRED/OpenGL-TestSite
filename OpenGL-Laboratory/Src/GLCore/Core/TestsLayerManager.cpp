@@ -97,6 +97,8 @@ namespace GLCore
 
 					if (ImGui::MenuItem ("Show Demo Window")) showImGuiDemoWindow = true;
 					ImGui::Separator ();
+					if (ImGui::MenuItem ("Show Tests Menu")) m_ShowTestMenu = true;
+					ImGui::Separator ();
 					if (ImGui::MenuItem ("Exit")) Application::Get ().ApplicationClose ();
 
 					ImGui::EndMenu ();
@@ -120,21 +122,26 @@ namespace GLCore
 				ImGui::ShowDemoWindow (&showImGuiDemoWindow);
 			}
 
+			ShowTestMenu ();
+
 			// Here goes Stuff that will be put inside DockSpace
-			ImGuiRenderAll ();
+			OnImGuiRenderAll ();
 
 			ImGui::End ();
 		}
 	}
-	void TestsLayerManager::ImGuiRenderAll ()
+	void TestsLayerManager::OnImGuiRenderAll ()
 	{
 		int8_t closeTestID = -1;
-		uint16_t i = 0;
 		{
 			ImVec2 mainViewportPosn = ImGui::GetMainViewport ()->Pos;
 			TestBase::s_MainViewportPosn.x = mainViewportPosn.x;
 			TestBase::s_MainViewportPosn.y = mainViewportPosn.y;
 		}
+		uint16_t test_index = 0;
+
+		// quick-fix
+		static const char *viewport_names[2] = { "Viewport 1", "Viewport 2" };
 		for (TestBase *test : m_ActiveTests) {
 			if (test)
 			{
@@ -142,39 +149,25 @@ namespace GLCore
 				////
 				// Here Will be code for framebuffer-out -> view-port_Window, new-ImGuiWindow(a persistant one that will force your viewport-window to-be attached to itself), pop-on-close-buttonpress etc.
 				////
-				ImGui::PushID (i);
-				ImGui::SetNextWindowDockID (m_DockspaceID);
+				// TODO: fixing multiple tests problem
+				ImGui::SetNextWindowDockID (m_DockspaceID, ImGuiCond_Once);
 				bool closeTest = true;
-				if (closeTest) {
-					ImGui::Begin (test->GetName ().c_str (), &closeTest, ImGuiWindowFlags_NoCollapse);
+				{
+					ImGui::Begin (test->GetName ().c_str (), &closeTest);
+					ImGui::PushID (test->GetName ().c_str ());
 					if (!closeTest) {
 						LayerCloseEvent event;
 						test->OnEvent (event);
-						closeTestID = i;
+						closeTestID = test_index;
 					}
-					// ImGuiID leftID, rightID;
-
-					//static ImGuiDockNode *WindowDockNode = nullptr;
-					//if (WindowDockNode != ImGui::GetWindowDockNode ())
-					//{
-					//	WindowDockNode = ImGui::GetWindowDockNode ();
-					//	ImGui::DockNodeTreeSplit (ImGui::GetCurrentContext (), WindowDockNode, ImGuiAxis_X, 1, 0.7f, WindowDockNode);
-					//}
-
-					// Create a DockSpace node where any window can be docked
-					ImGuiID dockspace_id = ImGui::GetID ("MyDockSpace");
-					ImGui::DockSpace (dockspace_id);
-
-					// ImGuiID leftSplitID, rightSplitID;
-					// ImGui::DockBuilderAddNode ();
-					// ImGui::DockBuilderSplitNode (ImGui::GetWindowDockNode ()->ID, ImGuiDir_Left, 0.7f, &leftSplitID, &rightSplitID);
-					// ImGui::DockBuilderFinish (ImGui::GetWindowDockNode ()->ID);
-
-					//ImGui::SetNextWindowDockID (leftSplitID, ImGuiCond_Always);
-
-					ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
+					ImGuiID dockspace_id;
+					if (ImGui::IsWindowFocused ()) {
+						dockspace_id = ImGui::GetID ("MyDockSpace");
+						ImGui::DockSpace (dockspace_id);
+						ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
+					}
 					ImGui::PushStyleVar (ImGuiStyleVar_WindowPadding, ImVec2 (0, 0));
-					ImGui::Begin ("ViewPort", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+					ImGui::Begin (viewport_names[test_index], NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 					{
 						ImVec2 ContentRegionAvail = ImGui::GetContentRegionAvail ();
 						ImVec2 ContentDrawStartPos = ImGui::GetCursorScreenPos ();
@@ -190,13 +183,15 @@ namespace GLCore
 					}
 					ImGui::End ();
 					ImGui::PopStyleVar ();
+					if(ImGui::IsWindowFocused () && ImGui::IsWindowAppearing ())
+						ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
 
-					ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
 					test->OnImGuiRender ();
+					ImGui::PopID ();
 					ImGui::End ();
 				}
-				ImGui::PopID ();
 			}else break;
+			test_index++;
 		}
 		if (closeTestID > -1)
 		{
@@ -215,13 +210,17 @@ namespace GLCore
 	void TestsLayerManager::ActivateTest (uint16_t posn)
 	{
 		constexpr uint16_t Active_Tests_stack_size = sizeof (m_ActiveTests)/sizeof (m_ActiveTests[0]);
-		for (uint16_t i = 0; i < Active_Tests_stack_size; i--)
+		for (uint16_t i = 0; i < Active_Tests_stack_size; i++)
 		{
+			if (m_ActiveTests[i] == m_AllTests[posn]) {
+				LOG_WARN ("test Already running");
+				return;
+			}
+			
 			if (m_ActiveTests[i] != nullptr) {
 				continue;
 			}
 			m_ActiveTests[i] = m_AllTests[posn];
-
 			m_ActiveTests[i]->OnAttach ();
 			return;
 			
@@ -245,5 +244,43 @@ namespace GLCore
 			}
 		}
 		LOG_WARN ("!! Out of bounds: posn {0}, Active_Tests_stack_size {1} !!", posn, Active_Tests_stack_size);
+	}
+
+	void TestsLayerManager::ShowTestMenu ()
+	{
+		if (m_ActiveTests[0] != nullptr && !m_ShowTestMenu)
+			return;
+		ImGuiWindowFlags flags;
+		if (m_ActiveTests[0] == nullptr)
+			ImGui::SetNextWindowDockID (m_DockspaceID, ImGuiCond_Always), flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
+		else
+			ImGui::SetNextWindowSizeConstraints (ImVec2(300, 200), ImVec2(ImGui::GetWindowWidth () * 0.7f, ImGui::GetWindowHeight () * 0.7f)), flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize;
+
+		ImGui::Begin ("Tests Menu", &m_ShowTestMenu, flags);
+		const ImVec2 RegionSize = ImGui::GetContentRegionAvail ();
+		uint16_t i = 0;
+		for (TestBase *test: m_AllTests) {
+			ImGui::PushID (i);
+			ImGui::SetNextItemWidth (RegionSize.x/2.0f);
+			bool un_collapsed = ImGui::CollapsingHeader (test->GetName ().c_str (), NULL, ImGuiTreeNodeFlags_AllowItemOverlap);
+			ImGui::SameLine ();
+			{
+				float x = RegionSize.x/2.0f;
+				float _x = ImGui::GetCursorPosX ();
+				ImGui::SameLine (x > _x ? x : _x);
+			}
+			if (ImGui::Button ("Start Test")) {
+				ActivateTest (i);
+				m_ShowTestMenu = false;
+			}
+			if (un_collapsed) {
+				ImGui::Indent ();
+				ImGui::Text (test->GetDiscription ().c_str ());
+				ImGui::Unindent ();
+			}
+			ImGui::PopID ();
+			i++;
+		}
+		ImGui::End ();
 	}
 }

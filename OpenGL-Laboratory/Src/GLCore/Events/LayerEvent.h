@@ -9,7 +9,7 @@ namespace GLCore
 	public:
 		LayerCloseEvent () {}
 		EVENT_CLASS_TYPE (LayerClose)
-		EVENT_CLASS_CATEGORY (EventCategoryLayer)
+		EVENT_CLASS_CATEGORY (EventCategory::LAYER)
 	};
 
 	class LayerViewportResizeEvent: public Event
@@ -30,7 +30,7 @@ namespace GLCore
 		}
 
 		EVENT_CLASS_TYPE (LayerViewportResize)
-		EVENT_CLASS_CATEGORY (EventCategoryLayer)
+		EVENT_CLASS_CATEGORY (EventCategory::LAYER)
 	private:
 		uint32_t m_Width, m_Height;
 	};
@@ -41,7 +41,7 @@ namespace GLCore
 		LayerViewportFocusEvent () {}
 
 		EVENT_CLASS_TYPE (LayerViewportFocus)
-		EVENT_CLASS_CATEGORY (EventCategoryLayer)
+		EVENT_CLASS_CATEGORY (EventCategory::LAYER)
 	};
 	class LayerViewportLostFocusEvent: public Event
 	{
@@ -49,6 +49,6 @@ namespace GLCore
 		LayerViewportLostFocusEvent () {}
 
 		EVENT_CLASS_TYPE (LayerViewportLostFocus)
-		EVENT_CLASS_CATEGORY (EventCategoryLayer)
+		EVENT_CLASS_CATEGORY (EventCategory::LAYER)
 	};
 }

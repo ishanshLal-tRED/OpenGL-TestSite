@@ -14,6 +14,7 @@ public:
 	virtual void OnEvent(GLCore::Event& event) override;
 	virtual void OnUpdate(GLCore::Timestep ts) override;
 	virtual void OnImGuiRender() override;
+	virtual void ImGuiMenuOptions() override;
 private:
 	GLCore::Utils::Shader* m_Shader;
 	GLCore::Utils::OrthographicCameraController m_CameraController;

@@ -27,7 +27,8 @@ namespace GLCore
 		bool m_ShowTestMenu = false;
 	private:
 		uint32_t m_DockspaceID;
-		std::array  <TestBase*,2> m_ActiveTests = { nullptr, nullptr };
+
+		TestBase* m_ActiveTests[2] = { nullptr, nullptr };
 		std::vector <TestBase*>   m_AllTests;
 	};
 }

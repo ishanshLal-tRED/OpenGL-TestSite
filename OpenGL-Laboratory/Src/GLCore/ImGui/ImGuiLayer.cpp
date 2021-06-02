@@ -12,6 +12,7 @@
 
 namespace GLCore
 {
+	std::unordered_map<const char *, std::pair<uint16_t, std::vector<std::string>>> s_UniqueNameMap;
 
 	ImGuiLayer::ImGuiLayer ()
 		: Layer ("ImGuiLayer")
@@ -58,6 +59,8 @@ namespace GLCore
 		ImGui_ImplOpenGL3_NewFrame ();
 		ImGui_ImplGlfw_NewFrame ();
 		ImGui::NewFrame ();
+
+		ResetUniqueNameCount ();
 	}
 
 	void ImGuiLayer::End ()
@@ -75,6 +78,33 @@ namespace GLCore
 			ImGui::UpdatePlatformWindows ();
 			ImGui::RenderPlatformWindowsDefault ();
 			glfwMakeContextCurrent (backup_current_context);
+		}
+	}
+
+	const char *ImGuiLayer::UniqueName (const char *name)
+	{
+		if (s_UniqueNameMap.find (name) == s_UniqueNameMap.end())
+		{// Create Entry
+			std::vector<std::string> _names;
+			s_UniqueNameMap.try_emplace (name, std::make_pair (0, std::move(_names)));
+		}
+
+		// check vector size, if small then insert entry
+		std::pair<uint16_t, std::vector<std::string>> &entry = s_UniqueNameMap.at (name);
+		{
+			for (uint16_t i = entry.second.size (); i < entry.first + 1; i++) {
+				entry.second.push_back (std::string (name) + "#" + std::to_string (i + 1));
+			}
+		}
+		entry.first++;
+		return entry.second[entry.first - 1].c_str ();
+	}
+
+	void ImGuiLayer::ResetUniqueNameCount ()
+	{
+		for (auto &entry : s_UniqueNameMap)
+		{
+			entry.second.first = 0;
 		}
 	}
 }

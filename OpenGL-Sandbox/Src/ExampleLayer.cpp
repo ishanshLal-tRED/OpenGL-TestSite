@@ -112,9 +112,20 @@ void ExampleLayer::OnUpdate(Timestep ts)
 
 void ExampleLayer::OnImGuiRender()
 {
-	ImGui::Begin("Controls");
+	ImGui::Begin(ImGuiLayer::UniqueName("Controls"));
 	if (ImGui::ColorEdit4("Square Base Color", glm::value_ptr(m_SquareBaseColor)))
 		m_SquareColor = m_SquareBaseColor;
 	ImGui::ColorEdit4("Square Alternate Color", glm::value_ptr(m_SquareAlternateColor));
 	ImGui::End();
+}
+void ExampleLayer::ImGuiMenuOptions ()
+{
+	if (ImGui::BeginMenu (ImGuiLayer::UniqueName("TestMenu"))) {
+
+		if (ImGui::MenuItem ("Show Tests Menu_"));
+		ImGui::Separator ();
+		if (ImGui::MenuItem ("My MAMA is super cute"));
+
+		ImGui::EndMenu ();
+	}
 }

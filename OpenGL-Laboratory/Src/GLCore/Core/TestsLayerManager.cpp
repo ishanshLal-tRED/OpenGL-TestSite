@@ -85,7 +85,7 @@ namespace GLCore
 			style.WindowMinSize.x = 280;
 
 			if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-				m_DockspaceID = ImGui::GetID ("MyDockSpace");
+				m_DockspaceID = ImGui::GetID ("Main DockSpace");
 				ImGui::DockSpace (m_DockspaceID, ImVec2 (0.0f, 0.0f), dockspaceFlags);
 			}
 
@@ -104,10 +104,9 @@ namespace GLCore
 					ImGui::EndMenu ();
 				}
 				{
-					int i = 0;
 					for (TestBase *test : m_ActiveTests) {
 						if (test) {
-							ImGui::PushID (i);
+							ImGui::PushID (ImGuiLayer::UniqueName ("--Menu"));
 							ImGui::Bullet ();
 							test->ImGuiMenuOptions ();
 							ImGui::PopID ();
@@ -138,10 +137,9 @@ namespace GLCore
 			TestBase::s_MainViewportPosn.x = mainViewportPosn.x;
 			TestBase::s_MainViewportPosn.y = mainViewportPosn.y;
 		}
-		uint16_t test_index = 0;
 
-		// quick-fix
-		static const char *viewport_names[2] = { "Viewport 1", "Viewport 2" };
+		// name_conflict-fix
+		uint16_t test_index = 0;
 		for (TestBase *test : m_ActiveTests) {
 			if (test)
 			{
@@ -150,24 +148,26 @@ namespace GLCore
 				// Here Will be code for framebuffer-out -> view-port_Window, new-ImGuiWindow(a persistant one that will force your viewport-window to-be attached to itself), pop-on-close-buttonpress etc.
 				////
 				// TODO: fixing multiple tests problem
+				
 				ImGui::SetNextWindowDockID (m_DockspaceID, ImGuiCond_Once);
 				bool closeTest = true;
+				
+				ImGui::Begin (test->GetName ().c_str (), &closeTest);
 				{
-					ImGui::Begin (test->GetName ().c_str (), &closeTest);
-					ImGui::PushID (test->GetName ().c_str ());
+					ImGui::PushID (ImGuiLayer::UniqueName ("--Test"));
 					if (!closeTest) {
 						LayerCloseEvent event;
 						test->OnEvent (event);
 						closeTestID = test_index;
 					}
+
 					ImGuiID dockspace_id;
-					if (ImGui::IsWindowFocused ()) {
-						dockspace_id = ImGui::GetID ("MyDockSpace");
-						ImGui::DockSpace (dockspace_id);
-						ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
-					}
+					dockspace_id = ImGui::GetID (ImGuiLayer::UniqueName("MyDockspace"));
+					ImGui::DockSpace (dockspace_id);
+
+					ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Always);
 					ImGui::PushStyleVar (ImGuiStyleVar_WindowPadding, ImVec2 (0, 0));
-					ImGui::Begin (viewport_names[test_index], NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+					ImGui::Begin (ImGuiLayer::UniqueName("Viewport"), NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
 					{
 						ImVec2 ContentRegionAvail = ImGui::GetContentRegionAvail ();
 						ImVec2 ContentDrawStartPos = ImGui::GetCursorScreenPos ();
@@ -176,20 +176,19 @@ namespace GLCore
 						test->FlagSetter (TestBase::Viewport_Hovered, ImGui::IsWindowHovered ());
 
 						test->ViewportSize (ContentRegionAvail.x, ContentRegionAvail.y);
-						{
-							test->m_ViewportPosnRelativeToMain.x = ContentDrawStartPos.x - TestBase::s_MainViewportPosn.x;
-							test->m_ViewportPosnRelativeToMain.y = ContentDrawStartPos.y - TestBase::s_MainViewportPosn.y;
-						}
+						
+						test->m_ViewportPosnRelativeToMain.x = ContentDrawStartPos.x - TestBase::s_MainViewportPosn.x;
+						test->m_ViewportPosnRelativeToMain.y = ContentDrawStartPos.y - TestBase::s_MainViewportPosn.y;
 					}
 					ImGui::End ();
 					ImGui::PopStyleVar ();
-					if(ImGui::IsWindowFocused () && ImGui::IsWindowAppearing ())
-						ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
-
+		
+					ImGui::SetNextWindowDockID (dockspace_id, ImGuiCond_Once);
 					test->OnImGuiRender ();
 					ImGui::PopID ();
-					ImGui::End ();
 				}
+				ImGui::End ();
+				
 			}else break;
 			test_index++;
 		}

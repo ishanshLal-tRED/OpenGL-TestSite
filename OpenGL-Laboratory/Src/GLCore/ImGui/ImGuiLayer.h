@@ -20,6 +20,8 @@ namespace GLCore {
 		void Begin();
 		void End();
 
+		static const char *UniqueName (const char *name);
+		static void ResetUniqueNameCount ();
 		// TODO: Impliment ImGui Theme Changer
 	private:
 		float m_Time = 0.0f;

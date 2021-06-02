@@ -120,7 +120,7 @@ void ExampleLayer::OnImGuiRender()
 }
 void ExampleLayer::ImGuiMenuOptions ()
 {
-	if (ImGui::BeginMenu (ImGuiLayer::UniqueName("TestMenu"))) {
+	if (ImGui::BeginMenu (ImGuiLayer::UniqueName("Testing_Menu"))) {
 
 		if (ImGui::MenuItem ("Show Tests Menu_"));
 		ImGui::Separator ();

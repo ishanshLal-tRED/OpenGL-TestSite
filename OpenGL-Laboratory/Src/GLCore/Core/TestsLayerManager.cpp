@@ -152,7 +152,7 @@ namespace GLCore
 				ImGui::SetNextWindowDockID (m_DockspaceID, ImGuiCond_Once);
 				bool closeTest = true;
 				
-				ImGui::Begin (test->GetName ().c_str (), &closeTest);
+				ImGui::Begin (ImGuiLayer::UniqueName(test->GetName ()), &closeTest);
 				{
 					ImGui::PushID (ImGuiLayer::UniqueName ("--Test"));
 					if (!closeTest) {

@@ -12,8 +12,6 @@
 
 namespace GLCore
 {
-	std::unordered_map<const char *, std::pair<uint16_t, std::vector<std::string>>> s_UniqueNameMap;
-
 	ImGuiLayer::ImGuiLayer ()
 		: Layer ("ImGuiLayer")
 	{}
@@ -81,20 +79,34 @@ namespace GLCore
 		}
 	}
 
+	const char *ImGuiLayer::UniqueName (const std::string &name)
+	{
+		return UniqueName (name.c_str ());
+	}
 	const char *ImGuiLayer::UniqueName (const char *name)
 	{
-		if (s_UniqueNameMap.find (name) == s_UniqueNameMap.end())
+		auto &map = Application::Get ().m_ImGuiLayer.s_UniqueNameMap;
+
+		if (map.find (name) == map.end())
 		{// Create Entry
-			std::vector<std::string> _names;
-			s_UniqueNameMap.try_emplace (name, std::make_pair (0, std::move(_names)));
+			std::vector<std::string> _names = {std::string(name)};
+			map.try_emplace (name, std::make_pair (0, std::move(_names)));
 		}
 
 		// check vector size, if small then insert entry
-		std::pair<uint16_t, std::vector<std::string>> &entry = s_UniqueNameMap.at (name);
+		std::pair<uint16_t, std::vector<std::string>> &entry = map.at (name);
 		{
 			for (uint16_t i = entry.second.size (); i < entry.first + 1; i++) {
+				if (entry.second.size () == 1) // i.e. only 1 entry
+				{
+					entry.second.clear ();
+					entry.second.push_back (std::string (name) + "#" + std::to_string (1));
+					entry.second.push_back (std::string (name) + "#" + std::to_string (2));
+					i = 2;
+					continue;
+				}
 				entry.second.push_back (std::string (name) + "#" + std::to_string (i + 1));
-			}
+			}	
 		}
 		entry.first++;
 		return entry.second[entry.first - 1].c_str ();
@@ -102,7 +114,8 @@ namespace GLCore
 
 	void ImGuiLayer::ResetUniqueNameCount ()
 	{
-		for (auto &entry : s_UniqueNameMap)
+		auto &map = Application::Get ().m_ImGuiLayer.s_UniqueNameMap;
+		for (auto &entry : map)
 		{
 			entry.second.first = 0;
 		}

@@ -35,6 +35,7 @@ namespace GLCore {
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent &e);
+		friend class ImGuiLayer;
 	private:
 		std::unique_ptr<Window> m_Window;
 

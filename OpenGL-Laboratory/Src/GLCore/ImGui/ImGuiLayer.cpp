@@ -97,7 +97,7 @@ namespace GLCore
 		std::pair<uint16_t, std::vector<std::string>> &entry = map.at (name);
 		{
 			for (uint16_t i = entry.second.size (); i < entry.first + 1; i++) {
-				if (entry.second.size () == 1) // i.e. only 1 entry
+				if (entry.second.size () == 1) // i.e. only 1 entry done till and that is of "name"
 				{
 					entry.second.clear ();
 					entry.second.push_back (std::string (name) + "#" + std::to_string (1));

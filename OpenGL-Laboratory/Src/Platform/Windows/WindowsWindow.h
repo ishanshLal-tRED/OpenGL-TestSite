@@ -14,13 +14,15 @@ namespace GLCore {
 
 		void OnUpdate() override;
 
-		inline uint32_t GetWidth() const override { return m_Data.Width; }
+		inline uint32_t GetWidth () const override { return m_Data.Width; }
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
 
 		// Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
+
+		void MouseCursor(bool show) const override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
 	private:

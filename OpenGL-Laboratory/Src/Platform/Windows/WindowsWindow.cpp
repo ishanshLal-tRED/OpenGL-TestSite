@@ -180,6 +180,11 @@ namespace GLCore {
 		m_Data.VSync = enabled;
 	}
 
+	void WindowsWindow::MouseCursor (bool show) const
+	{
+		glfwSetInputMode (m_Window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+	}
+
 	bool WindowsWindow::IsVSync() const
 	{
 		return m_Data.VSync;

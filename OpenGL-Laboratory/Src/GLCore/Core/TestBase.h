@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "GLCore/Core/Layer.h"
-#include "GLCore/Util/Core/Framebuffer.h"
 #include <glm/glm.hpp>
 #include "GLCore/Events/LayerEvent.h"
 
@@ -18,7 +17,7 @@ namespace GLCore
 
 		const std::string &GetDiscription () { return m_TestDiscription; }
 	protected:
-		enum Flags
+		enum Flags : int
 		{
 			None = 0,
 			Viewport_Focused = BIT (0),
@@ -28,11 +27,14 @@ namespace GLCore
 		{
 			return m_Flags & flags;
 		}
-		glm::vec2 ViewportSize ();
+		constexpr glm::vec2 This_ViewportSize () { return m_ViewPortSize; }
+		constexpr float This_ViewportAspectRatio () { return m_ViewPortSize.x/m_ViewPortSize.y; }
+		// Relative to window
+		constexpr glm::vec2 This_ViewportPosition () { return m_ViewportPosnRelativeToMain; };
 	private:
 		void FlagSetter (Flags, bool);
 		void FilteredEvent (Event &event);
-		void ViewportSize (float x, float y);
+		bool This_ViewportSize (float x, float y);
 		friend class TestsLayerManager;
 	private:
 		static glm::vec2 s_MainViewportPosn;
@@ -40,11 +42,10 @@ namespace GLCore
 		//////
 		// Frame-buffer and etc.
 		/////
-		int m_Flags;
-		glm::vec2 m_ViewPortSize;
-		Utils::Framebuffer m_Framebuffer;
+		int m_Flags = 0;
+		glm::vec2 m_ViewPortSize = { 1,1 };
 
-		glm::vec2 m_ViewportPosnRelativeToMain;
+		glm::vec2 m_ViewportPosnRelativeToMain = { 0,0 };
 		std::string m_TestDiscription;
 	};
 }
